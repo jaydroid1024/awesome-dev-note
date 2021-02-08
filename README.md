@@ -1,6 +1,6 @@
 # awesome-dev-note
 
-
+一套分层的编程知识体系，正在构建中。。。
 
 
 |      [编程基础](https://github.com/jaydroid1024/awesome-dev-note/tree/main/notes/01-Foundations)      |             编程思维             |     编程语言&nbsp;     |        业务方向        |      &nbsp;效率工具&nbsp;&nbsp;      | &nbsp;其它技能 |
