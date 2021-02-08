@@ -1,10 +1,11 @@
 ## 编程基础知识
 
-- ###### 编程必备基础知识-计算机组成原理
+- [组成原理](https://github.com/jaydroid1024/awesome-dev-note/blob/main/notes/01-Foundations/01-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86.md)
+- 编译原理
 
-- ###### 计算机操作系统
+- ###### 操作系统
 
-- 计算机网络
+- ###### 计算机网络
 
 
 
