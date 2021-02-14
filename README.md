@@ -10,7 +10,7 @@
 |      编译原理       | 数据结构 | Kotlin | Hybrid | IDE | 效率 |
 | [操作系统](https://github.com/jaydroid1024/awesome-dev-note/blob/main/notes/01-Foundations/02-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F.md) | 面向对象 | C++ | Flutter | UML | 求知 |
 |        计算机网络      | 编程规范 | Dart | ... | Gradle | 自控 |
-|       ...       | 重构 | Python |                        | Mac | ... |
+|       ...       | 重构 | Python |                        | [Mac](https://github.com/jaydroid1024/awesome-dev-note/tree/main/notes/05-Tools/01-Mac) | ... |
 |  | 数学 | ... | | Chrome | |
 |  | ... | | | ... | |
 
