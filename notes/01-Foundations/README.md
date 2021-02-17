@@ -17,6 +17,9 @@
 
 [编程必备基础 | 慕课网](https://coding.imooc.com/class/package/355.html)
 
+[大学计算机必修课新讲 ｜ 慕课网](https://coding.imooc.com/class/432.html)
+
 [深入浅出计算机组成原理 | 极客时间](https://time.geekbang.org/column/intro/100026001)
 
 [趣谈Linux操作系统 | 极客时间](https://time.geekbang.org/column/intro/100024701)
+
