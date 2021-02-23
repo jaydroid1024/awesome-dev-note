@@ -16,6 +16,13 @@
 
 组件生命周期如何实现自动注册管理
 
+- 组件AppLife初始化代码要解耦
+- 组件AppLife的初始化顺序可以按照优先级排序，或可以动态排序
+- 组件AppLife的初始化支持多进程
+- 组件AppLife的初始化支持异步加载
+- 组件AppLife的初始化时间可统计
+- 组件AppLife可自动注册
+
 自动识别所有组件的BaseAppLike类,增加或删除组件时，不用修改任何代码。
 
 - 定义一个注解来标识实现了BaseAppLike的类。
@@ -44,6 +51,12 @@
 
 
 
+第一版方式存在的问题：
+
+- priority 排序是基于整个应用范围的，新增业务模块需要增加一个初始化类时，不便于插入到具体的初始化位置（可能需要修改其他初始化类的 priority），跨团队合作时维护人员更是不敢随意修改 priority 的值
+- 编译期无法查看整个应用的初始化顺序，如果开发同学经验不足、自测不够充分或者代码审查不够仔细，初始化顺序错误的 bug 很容易被带到线上
+- 运行期反射、排序影响应用冷启动时间
+
 ## Arouter 路由框架
 
 
@@ -58,4 +71,5 @@
 - [Atlas](https://github.com/alibaba/atlas/tree/master/atlas-docs) 手淘项目动态组件化(Dynamic Bundle)框架。它主要提供了解耦化、组件化、动态性的支持。覆盖了工程师的工程编码期、Apk运行期以及后续运维期的各种问题。
 - [Initiator](https://github.com/ren93/initiator) Android应用初始化工具
 - [Alpha](https://github.com/alibaba/alpha) 是一个基于PERT图构建的Android异步启动框架，它简单，高效，功能完善。
+- [ARouter](https://github.com/alibaba/ARouter/blob/master/README_CN.md) 是一个用于帮助 Android App 进行组件化改造的框架 —— 支持模块间的路由、通信、解耦
 
