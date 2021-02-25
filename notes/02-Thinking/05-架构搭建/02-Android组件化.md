@@ -59,6 +59,34 @@
 
 ## Arouter 路由框架
 
+注解
+
+注解处理器
+
+APT (Annotation Processing Tool)
+是一种处理注释的工具，它对源代码文件进行检测找出其中的Annotation,根据注解自动生成代码,如果想要自定义的注解处理器能够正常运行，必须要通过APTI具来进行处理。也可以这样理解，只有通过声明APT工具后，程序在编译期间自定义注解解释器才能执行。
+通俗理解:根据规则，帮我们生成代码、生成类文件
+
+PackageElement
+表示一个包程序元素。提供对有关包及其成员的信息的访问
+Executab | eE | ement
+表示某个类或接口的方法、构造方法或初始化程序(静态或实例)
+TypeE I ement
+表示一个类或接口程序元素。提供对有关类型及其成员的信息的访问。
+Var i ab leE I ement
+表示一个字段、
+enumn
+
+常量、方法或构造方法参数、局部变量或异常参数
+
+Java 代码生成:JavaPoet
+
+Gradle plugin
+
+ASM
+
+
+
 
 
 
