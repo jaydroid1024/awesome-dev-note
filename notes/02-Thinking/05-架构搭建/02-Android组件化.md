@@ -6,13 +6,15 @@
 
 
 
-## 独立调试
+组件化核心技术三板斧
 
-## 页面跳转
+## 组件独立调试与发布
 
-## 组件通信
+## 组件路由跳转与通信
 
-## Application 生命周期分发
+
+
+## 组件生命周期与分发
 
 组件生命周期如何实现自动注册管理
 
@@ -57,6 +59,77 @@
 - 编译期无法查看整个应用的初始化顺序，如果开发同学经验不足、自测不够充分或者代码审查不够仔细，初始化顺序错误的 bug 很容易被带到线上
 - 运行期反射、排序影响应用冷启动时间
 
+
+
+## JDispatcher
+
+Android 组件化组件生命周期与分发框架
+
+### 框架结构
+
+- jdispatcher-annotation
+  - apply plugin: 'java'
+  - package com.jay.android.dispatcher.annotation;
+  - 声明编译时所需的注解类以及model类等
+
+- jdispatcher-compiler
+  - apply plugin: 'java'
+  - package com.jay.android.dispatcher.compiler;
+  - 编译期(.java--.class阶段) 收集和处理整个工程中的注解信息并生成辅助类文件
+
+- jdispatcher-register
+  - apply plugin: 'groovy'
+  - package com.jay.android.dispatcher.register;
+  - 编译期(.class--.dex阶段) 自定义Transform拦截AGP的构建过程，找到所有Dispatch并排序
+- jdispatcher-api
+  - apply plugin: 'com.android.library'
+  - package com.jay.android.dispatcher;
+  - 运行时用于框架的初始化
+
+
+
+
+
+
+
+## AppInit执行流程
+
+### 编译时
+
+1. 声明一个注解
+
+```java
+@AppInit(priority = 40, description = "初始化路由")
+public class RouterInit extends SimpleAppInit {}
+```
+
+2. 注解处理器
+
+```
+组件的 build.gradle 中配置 ModuleKey 用于分组
+
+```
+
+
+
+### 运行时
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Arouter 路由框架
 
 注解
@@ -100,4 +173,8 @@ ASM
 - [Initiator](https://github.com/ren93/initiator) Android应用初始化工具
 - [Alpha](https://github.com/alibaba/alpha) 是一个基于PERT图构建的Android异步启动框架，它简单，高效，功能完善。
 - [ARouter](https://github.com/alibaba/ARouter/blob/master/README_CN.md) 是一个用于帮助 Android App 进行组件化改造的框架 —— 支持模块间的路由、通信、解耦
+
+-  [android-startup](https://github.com/idisfkj/android-startup)
+
+- [AppStartFaster](https://github.com/NoEndToLF/AppStartFaster)
 
