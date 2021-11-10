@@ -1,0 +1,9 @@
+export ANDROID_HOME=/Users/xuejiewang/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/ndk/21.3.6528147
+export FLUTTER_HOME=/Users/xuejiewang/Library/Android/flutter
+export PATH=$PATH:$FLUTTER_HOME/bin:$PATH
+export PUB_HOSTED_URL=https://pub.flutter-io.cn
+export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn

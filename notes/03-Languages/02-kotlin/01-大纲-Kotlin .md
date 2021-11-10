@@ -1,38 +1,193 @@
 # Kotlin 
 
-Kotlin VS Java
+
+
+## 修饰符
+
+```kotlin
+//如果一个声明有多个修饰符，请始终按照以下顺序安放：
+public / protected / private / internal
+expect / actual
+final / open / abstract / sealed / const
+external
+override
+lateinit
+tailrec
+vararg
+suspend
+inner
+enum / annotation / fun // 在 `fun interface` 中是修饰符
+companion
+inline
+infix
+operator
+data
+```
+
+
+
+## Kotlin VS Java
 
 - Kotlin 旨在让已经了解 Java 的人易于学习。 在[官方比较页](https://www.kotlincn.net/docs/reference/comparison-to-java.html)上给出了二者差异的快速概述。
 
+- 优势：简洁、更安全、与Java互操作、协程结构化并发
 
-
-为什么要优先使用 Kotlin ？
-
-- 富有表现力且简洁
-- 更安全的代码
-- 可互操作
-- 协程支持结构化并发
-
-
-
-如何学习 Kotlin ？
-
-- 学习 Kotlin 语法以及 Kotlin 标准库 API 的一个很好的资源是 [Kotlin Koans](https://www.kotlincn.net/docs/tutorials/koans.html) 是一系列让你熟悉 Kotlin 语法的练习。 每个练习都是不能通过的单元测试，你的任务就是使其通过，支持在线和IDE插件两种方式练习。 
-
-- IDEA 已内置 [Java-to-Kotlin 转换器](https://www.jetbrains.com/help/idea/converting-a-java-file-to-kotlin-file.html)。 熟悉 Java 的人可以用它来学习相应的 Kotlin 语法结构，但它并不完美，并且你仍然需要自己熟悉 Kotlin 并学习 [Kotlin 惯用法](https://www.kotlincn.net/docs/reference/idioms.html)。
-
-
-
-Kotlin 编码规范
+## 编码规范
 
 - [编码规范](https://www.kotlincn.net/docs/reference/coding-conventions.html)
-
 - [代码风格迁移指南](https://www.kotlincn.net/docs/reference/code-style-migration-guide.html)
-  - 在项目根目录的 **gradle.properties** 文件中添加 **kotlin.code.style**=**official** 属性，并将其提交到版本控制系统。
+- 在项目根目录的 **gradle.properties** 文件中添加 **kotlin.code.style**=**official** 属性，并将其提交到版本控制系统。
 
 
 
-## 开发环境配置
+## 基本类型
+
+[官方文档](https://www.kotlincn.net/docs/reference/basic-types.html)
+
+Kotlin 中使用的基本类型：数字、字符、布尔值、数组与字符串。
+
+### 数字类型
+
+| 类型  | 大小（比特数） | 最小值                            | 最大值                              |
+| :---- | :------------- | :-------------------------------- | :---------------------------------- |
+| Byte  | 8              | -128                              | 127                                 |
+| Short | 16             | -32768                            | 32767                               |
+| Int   | 32             | -2,147,483,648 (-231)             | 2,147,483,647 (231 - 1)             |
+| Long  | 64             | -9,223,372,036,854,775,808 (-263) | 9,223,372,036,854,775,807 (263 - 1) |
+
+- 所有以未超出 `Int` 最大值的整型值初始化的变量都会推断为 `Int` 类型。如果初始值超过了其最大值，那么推断为 `Long` 类型。 如需显式指定 `Long` 型值，请在该值后追加 `L` 后缀。
+
+| 类型   | 大小（比特数） | 有效数字比特数 | 指数比特数 | 十进制位数 |
+| :----- | :------------- | :------------- | :--------- | :--------- |
+| Float  | 32             | 24             | 8          | 6-7        |
+| Double | 64             | 53             | 11         | 15-16      |
+
+- 对于以小数初始化的变量，编译器会推断为 `Double` 类型。 如需将一个值显式指定为 `Float` 类型，请添加 `f` 或 `F` 后缀。
+- 不支持隐式拓宽转换：具有 `Double` 参数的函数只能对 `Double` 值调用，而不能对 `Float`、 `Int` 或者其他数字值调用。
+
+### 字面常量
+
+- 十进制: `123`、`123L` 、`123.5`、`123.5f`
+- 十六进制: `0x0F`
+- 二进制: `0b00001011`
+
+- 注意: KT 不支持八进制
+- 下划线： `1_000_000`、`1234_5678_9012_3456L`、 `0xFF_EC_DE_5E`、 `0b11010010_01101001_10010100_10010010`
+
+### 装箱问题
+
+- Integer只缓存了【-128，127】个数字实例，其它范围都会新建实例，这里需要注意实例的同一性已经数值的相等性问题
+- 其它类型的装箱类型缓存的区间：**Byte，Short，Integer，Long为 -128 到 127**，**Character范围为 0 到 127。**
+- 除了 Integer 可以通过jvm参数改变范围外，其它的都不行。
+- 较小的类型**不能**隐式转换为较大的类型。 这意味着在不进行显式转换的情况下我们不能把 `Byte` 型值赋给一个 `Int` 变量。如果需要转换需要通过以下方法：`toByte(): Byte`、`toShort(): Short`、`toInt(): Int`、`toLong(): Long`、`toFloat(): Float`、`toDouble(): Double`、`toChar(): Char`
+
+### 位运算
+
+位运算列表（只用于 `Int` 与 `Long`）：
+
+- `shl(bits)` – 有符号左移
+- `shr(bits)` – 有符号右移
+- `ushr(bits)` – 无符号右移
+- `and(bits)` – 位**与**
+- `or(bits)` – 位**或**
+- `xor(bits)` – 位**异或**
+- `inv()` – 位非
+
+对应的函数为：
+
+```kotlin
+/** Shifts this value left by the [bitCount] number of bits. */
+public infix fun shl(bitCount: Int): Int
+
+/** Shifts this value right by the [bitCount] number of bits, filling the leftmost bits with copies of the sign bit. */
+public infix fun shr(bitCount: Int): Int
+
+/** Shifts this value right by the [bitCount] number of bits, filling the leftmost bits with zeros. */
+public infix fun ushr(bitCount: Int): Int
+
+/** Performs a bitwise AND operation between the two values. */
+public infix fun and(other: Int): Int
+
+/** Performs a bitwise OR operation between the two values. */
+public infix fun or(other: Int): Int
+
+/** Performs a bitwise XOR operation between the two values. */
+public infix fun xor(other: Int): Int
+
+/** Inverts the bits in this value. */
+public fun inv(): Int
+```
+
+### 字符
+
+字符字面值用单引号括起来: `'1'`。 特殊字符可以用反斜杠转义。 支持这几个转义序列：`\t`、 `\b`、`\n`、`\r`、`\'`、`\"`、`\\` 与 `\$`。 编码其他字符要用 Unicode 转义序列语法：`'\uFF00'`。可以显式把字符转换为 `Int` 数字：c.toInt()。
+
+### 布尔
+
+布尔用 `Boolean` 类型表示，它有两个值：*true* 与 *false*。若需要可空引用布尔会被装箱。
+
+内置的布尔运算有：
+
+- `||` – 短路逻辑或
+- `&&` – 短路逻辑与
+- `!` - 逻辑非
+
+### 数组
+
+数组在 Kotlin 中使用 `Array` 类来表示，
+
+- `arrayOf()` 来创建一个数组并传递元素值给它， `arrayOf(1, 2, 3)`
+
+- `arrayOfNulls()` 可以用于创建一个指定大小的、所有元素都为空的数组,
+
+- 构造器函数`inline constructor(size: Int, init: (Int) -> T)` 可以创建一个具有指定 [size] 的新数组，其中每个元素都通过调用指定的 [init] 函数入参一个索引返回该索引对应的值
+
+- Kotlin 中数组是*不型变的（invariant）*。这意味着 Kotlin 不让我们把 `Array<String>` 赋值给 `Array<Any>`，以防止可能的运行时失败（但是你可以使用 `Array<out Any>`
+
+- `[]` 运算符代表调用成员函数 `get()` 与 `set()`，例如：`val s1 = asc[0]`
+
+- 原生类型数组：Kotlin 也有无装箱开销的专门的类来表示原生类型数组: `ByteArray`、 `ShortArray`、`IntArray` 等等。这些类与 `Array` 并没有继承关系，但是它们有同样的方法属性集。它们也都有相应的工厂方法:
+
+  - ```kotlin
+    // 大小为 5、值为 [0, 0, 0, 0, 0] 的整型数组
+    val arr1 = IntArray(5)
+    // 例如：用常量初始化数组中的值
+    // 大小为 5、值为 [42, 42, 42, 42, 42] 的整型数组
+    val arr2 = IntArray(5) { 42 }
+    // 例如：使用 lambda 表达式初始化数组中的值
+    // 大小为 5、值为 [0, 1, 2, 3, 4] 的整型数组（值初始化为其索引值）
+    var arr3 = IntArray(5) { it * 1 }
+    ```
+
+无符号整型数组：与原生类型相同，每个无符号类型都有相应的为该类型特化的表示数组的类型：
+
+- `kotlin.UByteArray`: 无符号字节数组
+- `kotlin.UShortArray`: 无符号短整型数组
+- `kotlin.UIntArray`: 无符号整型数组
+- `kotlin.ULongArray`: 无符号长整型数组
+
+与有符号整型数组一样，它们提供了类似于 `Array` 类的 API 而没有装箱开销。
+
+### 无符号整型
+
+- 无符号类型自 Kotlin 1.3 起才可用，并且目前处于 [Beta](https://www.kotlincn.net/docs/reference/evolution/components-stability.html) 版
+- Kotlin 为无符号整数引入了以下类型：
+  - `kotlin.UByte`: 无符号 8 比特整数，范围是 0 到 255
+  - `kotlin.UShort`: 无符号 16 比特整数，范围是 0 到 65535
+  - `kotlin.UInt`: 无符号 32 比特整数，范围是 0 到 2^32 - 1
+  - `kotlin.ULong`: 无符号 64 比特整数，范围是 0 到 2^64 - 1
+
+- 无符号类型支持其对应有符号类型的大多数操作。
+
+### 字符串
+
+- 字符串用 `String` 类型表示。字符串是不可变的。 字符串的元素可以使用索引运算符访问: `s[i]`。 可以用 *for* 循环迭代字符串
+- 可以用 `+` 操作符连接字符串。这也适用于连接字符串与其他类型的值， 只要表达式中的第一个元素是字符串：
+- 转义采用传统的反斜杠方式
+- *原始字符串* 使用三个引号（`"""`）分界符括起来，内部没有转义并且可以包含换行以及任何其他字符:
+- 你可以通过 [`trimMargin()`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.text/trim-margin.html) 函数去除前导空格：
+- 字符串字面值可以包含*模板表达式* ，即一些小段代码，会求值并把结果合并到字符串中。 模板表达式以美元符（`$`）开头，由一个简单的名字构成，或者用花括号括起来的任意表达式
+- 原始字符串与转义字符串内部都支持模板。 如果你需要在原始字符串中表示字面值 `$` 字符（它不支持反斜杠转义）
 
 
 
@@ -42,12 +197,17 @@ Kotlin 编码规范
 
 - 变量
   - 类型推倒
-  - 易混淆的Long类型标记：val d=123333L,Java里面大小写都可以
+  - 易混淆的Long类型标记：val d=123333L ，Java里面大小写都可以
   - 数值类型转换：显示转换，int .toLong
   - 无符号类型：UInt、ULong
-  - 字符串：==：比较内容等价于Java的equals, ===：比较的是引用，字符串模板：$name
+  - 字符串：
+    - ==：比较内容等价于Java的equals, 
+    - ===：比较的是引用，
+    - 字符串模板：$name
     - Raw String  ""sssss""  trimIndent  格式化
-
+  
+  ![](https://raw.githubusercontent.com/jaydroid1024/jay_image_repo/main/img/20210806111352.png)
+  
 - 数组
   - Java：int[]，Integer[]，char[]，Character[]，String[]
   - Kotlin：IntArray，Array<Int>，CharArray，Array <Char>，Array < String>
@@ -744,7 +904,6 @@ Kotlin 编码规范
   - LOCAL_VARIABLE：限定为函数或构造函数的参数
   - FIELD：限定为属性
   - ...
-
 - 指定作用的时机
   - @Retation(AnnotationRetention.RUNTIME)
   - SOURCE：作用于源码期
@@ -784,37 +943,22 @@ Kotlin 编码规范
     - JavaPoet
     - KotlinPoet
     - [aptUtils](https://github.com/enbandari/Apt-Utils)
-- kotlin 的编译器插件
-  - AllOpen 插件
-    - 破除final限制
-    - 不是 final 的跳过
-    - 判断是否被对应的注解标注
-    - 如果是就变成open
-    - 如果是源码显式声明为final的，不处理
-  - NoArg 插件
-    - 生成无参构造器
-    - ASM 操作字节码
-  - android-extensions
-    - 合成View 属性，生成对应字节码
-  - kotlin-serialization 
-    - 为徐泪花类生成 serializer , 支持夸平台
 
-## 协程
 
-- 协程是什么
-  - 协程是可以由程序自行控制挂起和恢复的程序
-  - 协程可以用来实现多任务的协作执行
-  - 协程可以用来解决异步任务控制流的灵活转移
-- 协程的作用
-  - 异步代码同步化
-  - 降低异步程序的设计复杂度
-- 协程的常见实现
-  - Python
-  - Lua
-  - JavaScript
-  - Go
-- 挂起函数
-  - a
-- 协程的创建
-  - a
-- 
+
+## Kotlin 的编译器插件
+
+- AllOpen 插件
+  - 破除final限制
+  - 不是 final 的跳过
+  - 判断是否被对应的注解标注
+  - 如果是就变成open
+  - 如果是源码显式声明为final的，不处理
+- NoArg 插件
+  - 生成无参构造器
+  - ASM 操作字节码
+- android-extensions
+  - 合成View 属性，生成对应字节码
+- kotlin-serialization 
+  - 为徐泪花类生成 serializer , 支持夸平台
+

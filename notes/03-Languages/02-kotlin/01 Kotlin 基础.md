@@ -1,15 +1,4 @@
-# Kotlin 基础
-
-
-
-###### 为什么要优先使用 Kotlin 进行 Android 开发？
-
-- **富有表现力且简洁**：您可以使用更少的代码实现更多的功能。表达自己的想法，少编写样板代码。在使用 Kotlin 的专业开发者中，有 67% 的人反映其工作效率有所提高。
-- **更安全的代码**：Kotlin 有许多语言功能，可帮助您避免 null 指针异常等常见编程错误。包含 Kotlin 代码的 Android 应用发生崩溃的可能性降低了 20%。
-- **可互操作**：您可以在 Kotlin 代码中调用 Java 代码，或者在 Java 代码中调用 Kotlin 代码。Kotlin 可完全与 Java 编程语言互操作，因此您可以根据需要在项目中添加任意数量的 Kotlin 代码。
-- **结构化并发**：Kotlin 协程让异步代码像阻塞代码一样易于使用。协程可大幅简化后台任务管理，例如网络调用、本地数据访问等任务的管理。
-
-
+# Kotlin 基础-代理
 
 
 
@@ -26,3 +15,51 @@ DSL
 反射
 
 协程
+
+
+
+```
+// printSum 为高阶函数，定义了 lambda 形参
+fun printSum(sum: (Int, Int) -> Int) {
+    val result = sum(1, 2)
+    println(result)
+}
+
+fun main() {
+
+    //实际上kotlin中的lambda 就是一个匿名函数，java8的lambda表达式 却是一个sam的语法糖
+    //参数类型包含函数类型，或者返回值类型是一个函数类型 的函数 都可以称之为是高阶函数。
+    
+    //形参：(Int, Int) -> Int
+    //实参：{ x: Int, y: Int -> x + y }
+
+    // 以下 lambda 为实参，传递给高阶函数 printSum
+    val sum = { x: Int, y: Int -> x + y }
+    fun sunF(x: Int, y: Int) = x + y
+    printSum(sum)
+    printSum(::sunF)
+    //Kotlin 的 lambda 有个规约：如果 lambda 表达式是函数的最后一个实参，则可以放在括号外面，并且可以省略括号,这个规约是 Kotlin DSL 实现嵌套结构的本质原因
+    printSum({ x: Int, y: Int -> x + y })//Lambda argument should be moved out of parentheses
+    printSum() { x: Int, y: Int -> x + y }//Remove unnecessary parentheses from function call with lambda
+    printSum { x: Int, y: Int -> x + y }
+
+    fun pr(s: StringBuilder) {}
+    val block = { x: StringBuilder ->
+        /* 这个 lambda 的接收者类型为StringBuilder */
+    }
+
+    //带接收者的 lambda
+    // 调用高阶函数
+    kotlinDSL({})
+    kotlinDSL(block)
+    kotlinDSL(::pr)
+
+}
+
+typealias Block = StringBuilder.() -> Unit
+
+// 声明接收者
+fun kotlinDSL(block: Block) {
+    block(StringBuilder("Kotlin"))
+}
+```

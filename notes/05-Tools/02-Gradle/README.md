@@ -1,8 +1,8 @@
 ## Gradle
 
+[Hunter| Hunter是这么一个框架，帮你快速开发插件，在编译过程中修改字节码](https://github.com/Leaking/Hunter)
 
-
-JRouter
+[ByteX | ByteX是一个基于gradle transform api和ASM的字节码插件平台](https://github.com/bytedance/ByteX) 
 
 
 
@@ -59,6 +59,112 @@ JRouter
       - 执行 ./gradle taskName
       - 创建 task taskName{ doLast{}}
       - 依赖 dependsOn [taskName]; task taskName{dependsOn :app:taskName  doLast{}}
+
+
+
+
+
+
+
+## AGP字节码操作基础基础技术-Transform
+
+### 利用 AGP Transform 修改字节码的原理是什么？
+
+在 transform方法中，我们将每个jar包和class文件复制到dest路径，这个dest路径就是下一个Transform的输入数据，而在复制时，我们就可以做一些狸猫换太子，偷天换日的事情了，先将jar包和class文件的字节码做一些修改，再进行复制即可，至于怎么修改字节码，就要借助我们后面介绍的ASM了。
+
+### Transform的工作机制什么？
+
+每个Transform其实都是一个gradle task，Android编译器中的TaskManager将每个Transform串连起来，第一个Transform接收来自javac编译的结果，以及已经拉取到在本地的第三方依赖（jar. aar），还有resource资源，注意，这里的resource并非android项目中的res资源，而是asset目录下的资源。这些编译的中间产物，在Transform组成的链条上流动，每个Transform节点可以对class进行处理再传递给下一个Transform。我们常见的混淆，Desugar等逻辑，它们的实现如今都是封装在一个个Transform中，而我们自定义的Transform，会插入到这个Transform链条的最前面。
+
+### Transform的输入源有哪几种，分别是什么
+
+Transform有两种输入，一种是消费型的，当前Transform需要将消费型型输出给下一个Transform，另一种是引用型的，当前Transform可以读取这些输入，而不需要输出给下一个Transform，比如Instant Run就是通过这种方式，检查两次编译之间的diff的。
+
+消费型输入，可以从中获取jar包和class文件夹路径。需要输出给下一个任务
+        Collection<TransformInput> inputs = transformInvocation.getInputs();
+引用型输入，无需输出。
+        Collection<TransformInput> referencedInputs = transformInvocation.getReferencedInputs();
+
+### Transform数据流转处理机制源码解析？
+
+//TODO
+
+### Transform的输入数据的过滤机制?
+
+可以通过Scope和ContentType两个维度进行过滤。ContentType，顾名思义，就是数据类型，在插件开发中，我们一般只能使用CLASSES和RESOURCES两种类型，CLASSES包含了class文件和jar文件。如果是要处理所有class和jar的字节码，ContentType我们一般使用TransformManager.CONTENT_CLASS。
+Scope相比ContentType则是另一个维度的过滤规则，
+如果是要处理所有class字节码，Scope我们一般使用TransformManager.SCOPE_FULL_PROJECT。
+TransformManager有几个常用的Scope集合方便开发者使用。SCOPE_FULL_PROJECT，SCOPE_FULL_LIBRARY
+
+### 自定义Transform时如何提供增量编译？
+
+想要开启增量编译，我们需要重写Transform的这个接口，返回true。
+public boolean isIncremental() {
+    return true;
+}
+虽然开启了增量编译，但也并非每次编译过程都是支持增量的，毕竟一次clean build完全没有增量的基础，所以，我们需要检查当前编译是否是增量编译。
+
+如果不是增量编译，则清空output目录，然后按照前面的方式，逐个class/jar处理
+如果是增量编译，则要检查每个文件的Status，Status分四种，并且对这四种文件的操作也不尽相同。
+NOTCHANGED: 当前文件不需处理，甚至复制操作都不用；
+ADDED、CHANGED: 正常处理，输出给下一个任务；
+REMOVED: 移除outputProvider获取路径对应的文件。
+ boolean isIncremental = transformInvocation.isIncremental();
+Status status = jarInput.getStatus();
+ADDED、CHANGED: 正常处理，输出给下一个任务；
+transformJar(jarInput.getFile(), dest, status);
+移除outputProvider获取路径对应的文件。
+  if (dest.exists()) {
+        FileUtils.forceDelete(dest);
+   }
+DirectoryInput 也是同样的处理
+这就能为我们的编译插件提供增量的特性。
+
+
+
+### Transform 扫描过程如何实现并发处理加快编译？
+
+编译流程一般都是在PC上，所以我们可以尽量敲诈机器的资源。所以transform方法遍历处理每个jar/class的流程，其实可以并发处理，
+并发编译的实现并不复杂，只需要将上面处理单个jar/class的逻辑，并发处理，最后阻塞等待所有任务结束即可。
+
+private WaitableExecutor waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool();
+
+
+//异步并发处理jar/class
+waitableExecutor.execute(() -> {
+    bytecodeWeaver.weaveJar(srcJar, destJar);
+    return null;
+});
+waitableExecutor.execute(() -> {
+    bytecodeWeaver.weaveSingleClassToFile(file, outputFile, inputDirPath);
+    return null;
+});  
+
+
+//等待所有任务结束
+waitableExecutor.waitForTasksWithQuickFail(true);
+
+并发编译，基本比非并发编译速度提高了80%。增量的速度比全量的速度提升了3倍多，而且这个速度优化会随着工程的变大而更加显著。
+
+### 写一个自定义的Transform实现一个什么样的功能？
+
+//TODO
+
+
+
+
+
+## AGP字节码操作基础基础技术-ASM
+
+
+
+
+
+
+
+
+
+
 
 
 
