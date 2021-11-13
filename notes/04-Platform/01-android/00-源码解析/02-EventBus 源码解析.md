@@ -176,8 +176,6 @@ val eventBus = EventBus.getDefault()
 }
 ```
 
-
-
 ### 配置EventBus
 
 EventBusBuilder 类可以配置 EventBus 的各个方面。例如
@@ -341,6 +339,10 @@ fun handleFailureEvent(event: ThrowableFailureEvent) {
 ```
 
 ## EventBus 实现原理
+
+![image-20211111000620374](https://raw.githubusercontent.com/jaydroid1024/jay_image_repo/main/img/20211111000627.png)
+
+
 
 ### 通过 APT 生成索引类
 
@@ -553,25 +555,93 @@ public SubscriberInfo getSubscriberInfo(Class<?> subscriberClass) {
 
 ### 运行时部分
 
-添加索引类
+#### 初始化EventBus
 
-```kotlin
-EventBus.builder().addIndex(MyEventBusIndex()).installDefaultEventBus()
-```
+构建 EventBus 实例的三种方式：
+- EventBus.getDefault() + 默认配置
 
-**初始化 SubscriberMethodFinder**
+- EventBus.builder().installDefaultEventBus() + 自定义配置
+
+- EventBus.builder().build() + 自定义配置
+
+方式一：DCL单例方式创建进程唯一实例
 
 ```java
-subscriberMethodFinder = new SubscriberMethodFinder(
-        //添加由 EventBus 的注释预处理器生成的索引。默认空集合
-        builder.subscriberInfoIndexes,
-        //启用严格的方法验证（默认值：false）
-        builder.strictMethodVerification, 
-        //即使有生成的索引也强制使用反射（默认值：false）
-        builder.ignoreGeneratedIndex);
+static volatile EventBus defaultInstance;
+
+//使用进程范围的 EventBus 实例的应用程序的便捷单例。
+public static EventBus getDefault() {
+ 	 //通过局部变量中转可节省性能
+    EventBus instance = defaultInstance;
+    if (instance == null) {
+        synchronized (EventBus.class) {
+            instance = EventBus.defaultInstance;
+            if (instance == null) {
+                instance = EventBus.defaultInstance = new EventBus();
+            }
+        }
+    }
+    return instance;
+}
 ```
 
-#### 注册订阅者类，查找订阅者方法
+其它两种方式
+
+```java
+EventBus.builder()
+    .throwSubscriberException(false)
+    .logNoSubscriberMessages(true)
+    //添加索引类，减少运行时反射
+    .addIndex(MyEventBusIndex())
+    .build()
+
+EventBus.builder()
+    .throwSubscriberException(false)
+    .logNoSubscriberMessages(true)
+    //添加索引类，减少运行时反射
+    .addIndex(MyEventBusIndex())
+    .installDefaultEventBus()
+```
+
+**默认配置**
+
+```java
+EventBus(EventBusBuilder builder) {
+    logger = builder.getLogger();
+    //通过事件类找所有该事件的订阅者，
+    subscriptionsByEventType = new HashMap<>();
+    //通过订阅者类找所有Event
+    typesBySubscriber = new HashMap<>();
+    //通过粘性事件类查找所有粘性事件对象
+    stickyEvents = new ConcurrentHashMap<>();
+    //构建 AndroidHandlerMainThreadSupport
+    mainThreadSupport = builder.getMainThreadSupport();
+    //构建 HandlerPoster
+    mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
+    //在后台发布事件
+    backgroundPoster = new BackgroundPoster(this);
+    //在后台发布事件
+    asyncPoster = new AsyncPoster(this);
+    indexCount = builder.subscriberInfoIndexes != null ? builder.subscriberInfoIndexes.size() : 0;
+    //通过反射或APT查找订阅者
+    subscriberMethodFinder = new SubscriberMethodFinder(
+            //添加由 EventBus 的注释预处理器生成的索引。默认空集合
+            builder.subscriberInfoIndexes,
+            //启用严格的方法验证（默认值：false）
+            builder.strictMethodVerification,
+            //即使有生成的索引也强制使用反射（默认值：false）
+            builder.ignoreGeneratedIndex);
+    logSubscriberExceptions = builder.logSubscriberExceptions;
+    logNoSubscriberMessages = builder.logNoSubscriberMessages;
+    sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
+    sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
+    throwSubscriberException = builder.throwSubscriberException;
+    eventInheritance = builder.eventInheritance;
+    executorService = builder.executorService;
+}
+```
+
+#### 注册订阅者类，收集订阅者方法
 
 ```java
 public override fun onStart() {
@@ -624,6 +694,8 @@ List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
     }
 }
 ```
+
+
 
 ##### 运行时反射查找
 
